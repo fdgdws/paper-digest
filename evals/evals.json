@@ -1,0 +1,41 @@
+{
+  "skill_name": "paper-digest",
+  "description": "Test prompts and objective assertions for the paper-digest skill. Assertions map to checks in scripts/check_digest.py, which can be run against any produced digest JSON.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Here's a paper PDF — give me a full digest. (attach an empirical ML paper PDF)",
+      "expected_output": "A Markdown report following the fixed section order AND a JSON digest saved to disk. All 10 schema sections non-empty; critique has both strengths and weaknesses; headline results cite Tables/Figures/Sections; code/arxiv/doi match the parser's meta.json.",
+      "files": ["any empirical paper .pdf"],
+      "assertions": [
+        {"text": "Output JSON is valid and parseable", "type": "programmatic"},
+        {"text": "All 10 required sections are present and non-empty", "type": "programmatic"},
+        {"text": "critique contains both strengths and weaknesses", "type": "programmatic"},
+        {"text": "At least half of key_results cite a Table/Figure/Section/Eq", "type": "programmatic"},
+        {"text": "metadata.code_links is consistent with parser has_code_link (no invented code release)", "type": "programmatic"},
+        {"text": "doi / arxiv_id, if stated, match the parser-extracted values", "type": "programmatic"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Is this paper any good? Should I read it in full? (attach a paper PDF with no code release)",
+      "expected_output": "A digest whose reproducibility section reports code_available=false and a risk rating with reasoning; the critique should weigh whether the contribution justifies a full read. No fabricated code link.",
+      "files": ["a paper .pdf without a code link"],
+      "assertions": [
+        {"text": "reproducibility.code_available is false when the parser finds no code link", "type": "programmatic"},
+        {"text": "reproducibility_risk is one of low/medium/high with a one-line rationale", "type": "programmatic"},
+        {"text": "critique gives a defensible read-it-or-not judgment grounded in the paper", "type": "qualitative"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Digest this survey paper for my lit review. (attach a survey paper PDF)",
+      "expected_output": "paper_type is 'survey'; the digest applies the survey reading lens — judging taxonomy quality and synthesis vs enumeration rather than baselines/datasets.",
+      "files": ["a survey paper .pdf"],
+      "assertions": [
+        {"text": "metadata.paper_type == 'survey'", "type": "programmatic"},
+        {"text": "critique evaluates taxonomy/synthesis quality (survey lens), not experimental baselines", "type": "qualitative"}
+      ]
+    }
+  ]
+}

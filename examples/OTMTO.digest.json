@@ -1,0 +1,74 @@
+{
+  "metadata": {
+    "title": "Orthogonal Transfer for Multitask Optimization",
+    "authors": "Sheng-Hao Wu, Zhi-Hui Zhan, Kay Chen Tan, Jun Zhang",
+    "venue_year": "IEEE Transactions on Evolutionary Computation, vol. 27(1), Feb 2023 (accepted Mar 2022)",
+    "arxiv_id": null,
+    "doi": "10.1109/TEVC.2022.3160196",
+    "code_links": [],
+    "paper_type": "empirical"
+  },
+  "tldr": "OTMTO improves knowledge transfer in evolutionary multitask optimization for tasks of different dimensionalities, via an optimization-based cross-task mapping (CTM) plus orthogonal-experimental-design transfer (OT) that learns which dimensions to combine.",
+  "problem": {
+    "problem": "Knowledge transfer (KT) in evolutionary multitask optimization (EMTO) struggles when tasks have different dimensionalities (DDs) and when dimensions differ in importance/similarity (Sec. I).",
+    "motivation": "Existing unified-solution-representation methods pad redundant dimensions, causing negative transfer across heterogeneous spaces, and uniform-probability crossover transfers low-quality dimensions (Sec. II-C)."
+  },
+  "method": {
+    "core_idea": "Operate KT in each task's original search space: map the source task's global-best to the target space (CTM), then use orthogonal experimental design to find the best combination of dimensions between the mapped individual and a random target individual (OT) (Sec. III).",
+    "how_it_works": "CTM frames mapping as an inner optimization solved by DE/best/1 aligning kNN-style hypotheses of source/target (Sec. III-B, Alg. 1). OT applies OED needing M=2^ceil(log2(D+1)) evaluations instead of exponential (Sec. III-C, Alg. 2). CDT transfers across similar dimensions via KL-divergence similarity + roulette (Sec. III-D, Alg. 3). pOT and pCDT are adapted by a reward rule (Eq. 11, 14).",
+    "assumptions": "Tasks share some exploitable similarity; base solver is DE/rand/1; KT benefit is approximated by the immediate replacement reward."
+  },
+  "evidence": {
+    "datasets": ["CEC17 multitask benchmark (9 MTOPs, 18 tasks)", "Proposed MTOP-DD benchmark (144 problems, D in {20,30,40,50})", "Double Pole Balancing (DPB) real-world tasks"],
+    "baselines": ["SODE (single-task DE)", "MFEA", "MFEA2", "EMTEA", "MTGA"],
+    "key_results": [
+      "On CEC17, significantly better than MFEA on 16/18 tasks (worse on 1) and better than MFEA2 on 15 (Table II)",
+      "Better than MTGA on 12 tasks, worse on 1 (Table II)",
+      "On MTOP-DD, outperforms MFEA/MFEA2/EMTEA/MTGA on most tasks; EMTEA sometimes worse than single-task SODE, evidencing negative transfer (Table III)",
+      "Component ablations support CTM, OT, and CDT (Tables IV-V)",
+      "Higher DPB success rates than SODE/EMTEA/MTGA (Table VI)"
+    ],
+    "metrics": ["mean best fitness over 20 runs", "Wilcoxon rank-sum test at 0.05", "CEC17 performance metric", "DPB success rate over 50 runs"]
+  },
+  "contributions": [
+    "CTM: an optimization-based mapping enabling KT across tasks with different dimensionalities in their original spaces.",
+    "OT: using orthogonal experimental design to learn the best dimension combination with few extra evaluations.",
+    "CDT: similarity-based cross-dimension transfer using KL-divergence.",
+    "Reward-based adaptive control of KT intensity (pOT, pCDT).",
+    "A new configurable MTOP-DD benchmark test suite."
+  ],
+  "critique": {
+    "strengths": [
+      "Targets an under-studied and realistic setting (different task dimensionalities) and contributes a reusable benchmark beyond the method itself.",
+      "Broad evaluation: standard CEC17 + new MTOP-DD + real-world DPB + 3/5-task scalability, with Wilcoxon significance over 20 runs.",
+      "Thorough ablations isolate each component (CTM mapping alternatives, OT vs SBX/UBX, CDT vs intratask sampling) (Tables IV-V).",
+      "Provides a theoretical reading of CTM as aligning kNN hypotheses of the two tasks (Sec. III-B2)."
+    ],
+    "weaknesses": [
+      "No code release was found, so reproduction relies on reimplementing an intricate multi-component algorithm.",
+      "Much evidence (other D combinations, the quantitative CEC17 metric analysis, running time) lives in supplementary material, limiting what the main text alone can verify.",
+      "Baselines reflect the ~2021 EMTO family; gains versus more recent EMTO methods are not established.",
+      "CTM runs an inner DE optimization (maxINFE=500) per transfer; the wall-clock/overhead trade-off vs simpler methods is only partly addressed (running time deferred to supplementary).",
+      "Main tables foreground mean fitness and win/tie/loss counts; variance/effect sizes are not prominently reported."
+    ],
+    "open_questions": [
+      "How does OTMTO scale to high dimensionality and many tasks given the per-transfer inner-optimization cost? (the authors flag this as future work)",
+      "Does the kNN-hypothesis-alignment view predict when CTM fails for highly dissimilar tasks?",
+      "Do the gains persist with base solvers other than DE/rand/1?"
+    ]
+  },
+  "reproducibility": {
+    "code_available": false,
+    "data_available": "partial",
+    "compute_reported": "FE budgets and full parameter settings are given (maxFE=1000xDi, maxINFE=500, ps=100, etc.); running time and some benchmark data are in supplementary; no hardware details in the main text.",
+    "reproducibility_risk": "medium",
+    "notes": "Detailed pseudocode (Alg. 1-4) and parameter tables make reimplementation feasible, but the absence of released code plus supplementary-only results raises practical risk."
+  },
+  "positioning": "Extends the EMTO line from MFEA (single-population, unified representation, implicit KT) toward multipopulation, explicit, dimension-aware KT in original search spaces. Differentiates from autoencoder mappings (EMTEA, kernelized AE) and random dimension shuffling (MTGA) via optimization-based mapping (CTM) and OED-based dimension combination (OT); claims to be the first to use OED for cross-task KT.",
+  "follow_up_reading": [
+    "Gupta et al. 2016 (MFEA) [22] - the baseline paradigm this work departs from.",
+    "Bali et al. 2020 (MFEA-II) [33] - online similarity estimation for when-to-transfer.",
+    "Feng et al. (EMTEA, explicit autoencoding) [28] - the autoencoder mapping OTMTO contrasts with.",
+    "Da et al. 2016 (CEC17 benchmark) [65] - the benchmark and performance metric used."
+  ]
+}
