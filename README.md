@@ -1,5 +1,7 @@
 # paper-digest
 
+English | [中文](README_zh.md)
+
 An [Agent Skill](https://www.anthropic.com/news/skills) that turns a research
 paper into a **structured, critically-read digest** — not a summary. It outputs
 both a human-readable Markdown report and a machine-readable JSON object that
